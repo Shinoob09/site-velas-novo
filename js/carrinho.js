@@ -117,4 +117,6 @@ export function limparCarrinho() {
   carrinhoAtual = {};
   localStorage.removeItem("carrinho");
   atualizarCarrinho();
+  window.adicionarAoCarrinho = adicionarAoCarrinho;
+
 }
