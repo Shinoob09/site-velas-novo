@@ -1,31 +1,31 @@
-
-import { db } from "./firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { mostrarDetalhes } from "./modal.js";
+import { exibirModalProduto } from './modal.js';
 
 export async function renderizarProdutos() {
-  const lista = document.getElementById("lista-produtos");
-  if (!lista) return;
+  const container = document.getElementById("produtos-container");
+  container.innerHTML = "";
 
-  try {
-    const snapshot = await getDocs(collection(db, "produtos"));
-    const produtos = [];
-    snapshot.forEach(doc => produtos.push({ id: doc.id, ...doc.data() }));
-    if (!produtos.length) {
-      lista.innerHTML = "<p style='text-align:center; color:#666;'>Nenhum produto disponível.</p>";
-      return;
-    }
-    lista.innerHTML = produtos.map((p, i) => `
-      <div class="produto" onclick="mostrarDetalhes(${i})">
-        <img src="${p.imagem}" alt="${p.nome}" loading="lazy">
-        <h3>${p.nome}</h3>
-        <p>R$ ${p.preco.toFixed(2)}</p>
-        <button class="botao-comprar" onclick="event.stopPropagation();mostrarDetalhes(${i})">Ver Detalhes</button>
-      </div>
-    `).join("");
-    window.produtosGlobal = produtos;
-  } catch (e) {
-    console.error("Erro ao carregar produtos:", e);
-    lista.innerHTML = "<p style='text-align:center; color:red;'>Erro ao carregar produtos.</p>";
-  }
+  const snapshot = await firebase.firestore().collection("produtos").get();
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const card = document.createElement("div");
+    card.className = "produto-card";
+
+    card.innerHTML = `
+      <img src="${data.imagem}" alt="${data.nome}">
+      <h3>${data.nome}</h3>
+      <p>R$ ${data.preco.toFixed(2)}</p>
+      <button class="btn-detalhes" data-id="${doc.id}">Ver Detalhes</button>
+    `;
+
+    container.appendChild(card);
+  });
+
+  // Configura o evento de detalhes
+  document.querySelectorAll(".btn-detalhes").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-id");
+      const doc = await firebase.firestore().collection("produtos").doc(id).get();
+      exibirModalProduto(doc.data());
+    });
+  });
 }
