@@ -1,4 +1,3 @@
-
 import { db } from "./firebase-config.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { mostrarDetalhes } from "./modal.js";
@@ -11,10 +10,12 @@ export async function renderizarProdutos() {
     const snapshot = await getDocs(collection(db, "produtos"));
     const produtos = [];
     snapshot.forEach(doc => produtos.push({ id: doc.id, ...doc.data() }));
+
     if (!produtos.length) {
       lista.innerHTML = "<p style='text-align:center; color:#666;'>Nenhum produto disponível.</p>";
       return;
     }
+
     lista.innerHTML = produtos.map((p, i) => `
       <div class="produto" onclick="mostrarDetalhes(${i})">
         <img src="${p.imagem}" alt="${p.nome}" loading="lazy">
