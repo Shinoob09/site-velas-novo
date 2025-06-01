@@ -8,6 +8,32 @@
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="icon" href="./favicon.ico" />
 </head>
+<!-- Modal -->
+<div id="modal-detalhes" class="modal"></div>
+
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.6);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.modal-content {
+  background: white;
+  padding: 20px;
+  margin: 10% auto;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 8px;
+}
+.fechar-modal {
+  float: right;
+  cursor: pointer;
+  font-weight: bold;
+}
+</style>
 <body>
   <header>
     <div class="banner-header">
