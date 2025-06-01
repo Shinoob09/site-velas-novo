@@ -1,4 +1,3 @@
-
 import { getEl } from './dom-utils.js';
 import { adicionarAoCarrinho } from './carrinho.js';
 
@@ -14,9 +13,8 @@ export function configurarModal() {
 }
 
 export function mostrarDetalhes(index) {
-  const p = window.produtos[index];
+  const p = window.produtosGlobal[index];
   if (!p) return;
-
   produtoSelecionado = p;
   getEl("modal-titulo").textContent = p.nome;
   getEl("modal-desc").textContent = p.desc;
