@@ -4,7 +4,6 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>VerdiLume - Aromas & Velas</title>
-  <!-- Aponta para o CSS na pasta correta -->
   <link rel="stylesheet" href="./css/style.css" />
   <link rel="icon" href="./favicon.ico" />
 </head>
@@ -22,7 +21,7 @@
 
   <section class="container" id="lista-produtos"></section>
 
-  <div id="modal">
+  <div id="modal" style="display: none;">
     <div class="modal-content fade-in">
       <img alt="" class="modal-img" id="modal-img" src=""/>
       <div class="modal-info">
@@ -51,8 +50,6 @@
     <p>© 2025 VerdiLume. Todos os direitos reservados.</p>
   </footer>
 
-  <!-- REMOVA TUDO que aponta pro Firebase V8 -->
-  <!-- Agora chamamos somente o módulo principal (main.js), que usa Firebase V10+ -->
   <script type="module" src="./js/main.js"></script>
 </body>
 </html>
