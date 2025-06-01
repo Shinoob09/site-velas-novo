@@ -14,16 +14,6 @@ export function configurarModal() {
 }
 
 export function mostrarDetalhes(index) {
-  const p = window.produtosGlobal[index];
-  if (!p) return;
-
-  produtoSelecionado = p;
-  getEl("modal-titulo").textContent = p.nome;
-  getEl("modal-desc").textContent = p.desc;
-  getEl("modal-preco").textContent = `R$ ${p.preco.toFixed(2)}`;
-  const img = getEl("modal-img");
-  img.src = p.imagem;
-  img.alt = p.nome;
   const p = window.produtos[index];
   if (!p) return;
 
