@@ -1,5 +1,6 @@
 // scripts/carrinho.js
-import { z } from 'https://cdn.jsdelivr.net/npm/zod@3.21.4/dist/zod.esm.min.js';
+// Usando o Zod exposto como window.Zod
+const { z } = window.Zod;
 
 const schema = z.object({
   nome: z.string().min(3),
@@ -9,21 +10,14 @@ const schema = z.object({
 
 let carrinho = JSON.parse(localStorage.getItem("carrinho")) || {};
 
-function salvarCarrinho() {
-  localStorage.setItem("carrinho", JSON.stringify(carrinho));
-  renderizarCarrinho();
-}
-
-export function configurarCarrinho() {
-  renderizarCarrinho();
-}
-
+/* Renderiza o carrinho no DOM */
 function renderizarCarrinho() {
   const lista = document.getElementById("itens-carrinho");
   const totalDisplay = document.getElementById("total-carrinho");
   const contador = document.getElementById("contador-carrinho");
   lista.innerHTML = "";
   let total = 0, count = 0;
+
   Object.values(carrinho).forEach(item => {
     const li = document.createElement("li");
     li.innerHTML = `
@@ -37,16 +31,25 @@ function renderizarCarrinho() {
     total += item.preco * item.quantidade;
     count += item.quantidade;
   });
+
   totalDisplay.textContent = total.toFixed(2);
   contador.textContent = count;
 }
 
+/* Salva no localStorage e redesenha o carrinho */
+function salvarCarrinho() {
+  localStorage.setItem("carrinho", JSON.stringify(carrinho));
+  renderizarCarrinho();
+}
+
+/* Expondo no window para o HTML chamar */
 window.adicionarAoCarrinho = (id, nome, preco) => {
   if (carrinho[id]) carrinho[id].quantidade++;
   else carrinho[id] = { id, nome, preco, quantidade: 1 };
   salvarCarrinho();
 };
 
+/* Expondo alteração de quantidade */
 window.alterarQuantidade = (id, delta) => {
   if (!carrinho[id]) return;
   carrinho[id].quantidade += delta;
@@ -54,14 +57,17 @@ window.alterarQuantidade = (id, delta) => {
   salvarCarrinho();
 };
 
+/* Abre o modal de formulário de pagamento */
 window.abrirFormulario = () => {
   document.getElementById("modal-form").style.display = "flex";
 };
 
+/* Fecha o modal */
 window.fecharFormulario = () => {
   document.getElementById("modal-form").style.display = "none";
 };
 
+/* Lida com o submit do formulário */
 document.getElementById("formulario-pagamento")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nome = document.getElementById("input-nome").value.trim();
@@ -72,9 +78,10 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
     alert("Preencha corretamente os campos!");
     return;
   }
+
   const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
   try {
-    // Gerar PIX via PixGerar
+    // Gera PIX com PixGerar
     const response = await fetch("https://api-pixgerar.onrender.com/api/qrcode", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -97,6 +104,7 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
   }
 });
 
+/* Fecha o modal e envia o pedido ao confirmar */
 window.confirmarPagamento = async () => {
   const nome = document.getElementById("input-nome").value.trim();
   const endereco = document.getElementById("input-endereco").value.trim();
@@ -104,10 +112,11 @@ window.confirmarPagamento = async () => {
   const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
   const itens = Object.values(carrinho).map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`).join(", ");
   const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
+
   try {
-    // Salvar no Firestore
+    // Salva no Firestore
     await db.collection("pedidos").add(pedidoObj);
-    // Enviar Telegram
+    // Envia Telegram
     const mensagem = `
 🧾 *Novo Pedido VerdiLume*
 👤 *Nome:* ${nome}
@@ -118,7 +127,8 @@ window.confirmarPagamento = async () => {
     `;
     const url = `https://api.telegram.org/bot7635965015:AAGcOEt7lMgxmlG8C8FxPhCh2vDMnIk5Rpg/sendMessage?chat_id=5688730032&text=${encodeURIComponent(mensagem)}&parse_mode=Markdown`;
     fetch(url).catch(console.error);
-    // Limpar carrinho e redirecionar
+
+    // Limpa carrinho e redireciona
     localStorage.removeItem("carrinho");
     window.location.href = "confirmacao.html";
   } catch (err) {
@@ -126,3 +136,8 @@ window.confirmarPagamento = async () => {
     alert("Erro ao processar o pedido.");
   }
 };
+
+/* Função principal para inicializar o carrinho na página */
+export function configurarCarrinho() {
+  renderizarCarrinho();
+}
