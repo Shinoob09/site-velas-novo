@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /produtos/{id} {
+      allow read: if true;
+    }
+    match /pedidos/{id} {
+      allow create: if request.resource.data.nome is string &&
+                      request.resource.data.endereco is string &&
+                      request.resource.data.telefone is string &&
+                      request.resource.data.total is string;
+      allow read, update, delete: if false;
+    }
+  }
+}
