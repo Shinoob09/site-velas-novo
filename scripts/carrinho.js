@@ -94,39 +94,62 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
     alert("Falha ao gerar PIX.");
   }
 });
+// scripts/carrinho.js (a partir da linha onde definimos `confirmarPagamento`)
+window.confirmarPagamento = async () => {
+  const nome = document.getElementById("input-nome").value.trim();
+  const endereco = document.getElementById("input-endereco").value.trim();
+  const telefone = document.getElementById("input-telefone").value.trim();
+  const total = Object.values(carrinho)
+    .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
+    .toFixed(2);
 
-95  window.confirmarPagamento = async () => {
-96    const nome = document.getElementById("input-nome").value.trim();
-97    const endereco = document.getElementById("input-endereco").value.trim();
-98    const telefone = document.getElementById("input-telefone").value.trim();
-99    const total = Object.values(carrinho)
-100      .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
-101      .toFixed(2);
-102    const itens = Object.values(carrinho)
-103      .map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`)
-104      .join(", ");
-105    const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
-106    try {
-107      // Salva no Firestore
-108      await db.collection("pedidos").add(pedidoObj);
-109      // Envia Telegram
-110      const mensagem = `
-111 🧾 *Novo Pedido VerdiLume*
-112 👤 *Nome:* ${nome}
-113 🏠 *Endereço:* ${endereco}
-114 📞 *Telefone:* ${telefone}
-115 📦 *Itens:* ${itens}
-116 💰 *Total:* R$${total}
-117  `;
-118      const url = `https://api.telegram.org/botSEU_TOKEN_AQUI/sendMessage?chat_id=SEU_CHAT_ID&text=${encodeURIComponent(mensagem)}&parse_mode=Markdown`;
-119      fetch(url).catch(console.error);
-120      // Limpa carrinho e redireciona
-121      localStorage.removeItem("carrinho");
-122      window.location.href = "confirmacao.html";
-123    } catch (err) {
-124      console.error(err);
-125      alert("Erro ao processar o pedido.");
-126    }
-127  };
-128
+  const itens = Object.values(carrinho)
+    .map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`)
+    .join(", ");
+
+  const pedidoObj = {
+    nome,
+    endereco,
+    telefone,
+    itens,
+    total,
+    data: new Date().toISOString()
+  };
+
+  try {
+    // 1) Salva no Firestore
+    await db.collection("pedidos").add(pedidoObj);
+
+    // 2) Monta a mensagem do Telegram SEM BACKTICKS multilinha
+    const mensagem =
+      "🧾 *Novo Pedido VerdiLume*\\n" +
+      "👤 *Nome:* " + nome + "\\n" +
+      "🏠 *Endereço:* " + endereco + "\\n" +
+      "📞 *Telefone:* " + telefone + "\\n" +
+      "📦 *Itens:* " + itens + "\\n" +
+      "💰 *Total:* R$" + total;
+
+    // 3) Monta a URL de envio para o seu Bot
+    const botToken = "7635965015:AAGcOEt7lMgxmlG8C8FxPh2vDMnIk5Rpg"; 
+    const chatId = "5688730032";
+    const url =
+      "https://api.telegram.org/bot" +
+      botToken +
+      "/sendMessage?chat_id=" +
+      chatId +
+      "&text=" + encodeURIComponent(mensagem) +
+      "&parse_mode=Markdown";
+
+    // 4) Dispara o fetch para enviar ao Telegram
+    fetch(url).catch(console.error);
+
+    // 5) Limpa o carrinho e redireciona à página de confirmação
+    localStorage.removeItem("carrinho");
+    window.location.href = "confirmacao.html";
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao processar o pedido.");
+  }
+};
+
 
