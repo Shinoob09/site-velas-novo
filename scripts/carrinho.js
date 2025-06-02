@@ -95,14 +95,38 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
   }
 });
 
-window.confirmarPagamento = async () => {
-  const nome = document.getElementById("input-nome").value.trim();
-  const endereco = document.getElementById("input-endereco").value.trim();
-  const telefone = document.getElementById("input-telefone").value.trim();
-  const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
-  const itens = Object.values(carrinho).map(i => \`\${i.quantidade}x \${i.nome} (R$\${i.preco.toFixed(2)})\`).join(", ");
-  const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
+95  window.confirmarPagamento = async () => {
+96    const nome = document.getElementById("input-nome").value.trim();
+97    const endereco = document.getElementById("input-endereco").value.trim();
+98    const telefone = document.getElementById("input-telefone").value.trim();
+99    const total = Object.values(carrinho)
+100      .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
+101      .toFixed(2);
+102    const itens = Object.values(carrinho)
+103      .map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`)
+104      .join(", ");
+105    const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
+106    try {
+107      // Salva no Firestore
+108      await db.collection("pedidos").add(pedidoObj);
+109      // Envia Telegram
+110      const mensagem = `
+111 🧾 *Novo Pedido VerdiLume*
+112 👤 *Nome:* ${nome}
+113 🏠 *Endereço:* ${endereco}
+114 📞 *Telefone:* ${telefone}
+115 📦 *Itens:* ${itens}
+116 💰 *Total:* R$${total}
+117  `;
+118      const url = `https://api.telegram.org/botSEU_TOKEN_AQUI/sendMessage?chat_id=SEU_CHAT_ID&text=${encodeURIComponent(mensagem)}&parse_mode=Markdown`;
+119      fetch(url).catch(console.error);
+120      // Limpa carrinho e redireciona
+121      localStorage.removeItem("carrinho");
+122      window.location.href = "confirmacao.html";
+123    } catch (err) {
+124      console.error(err);
+125      alert("Erro ao processar o pedido.");
+126    }
+127  };
+128
 
-  try {
-    await db.collection("pedidos").add(pedidoObj);
-    const mensagem = \`
