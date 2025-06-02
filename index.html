@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>VerdiLume - Aromas & Velas</title>
-  <link href="styles/main.css" rel="stylesheet"/>
+  <!-- Aponta para o CSS correto -->
+  <link href="styles/main.css" rel="stylesheet" />
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <!-- Zod para validação -->
-  <script src="https://cdn.jsdelivr.net/npm/zod@3.21.4/dist/zod.min.js"></script>
+
+  <!-- Zod via Skypack e expondo como window.Zod -->
+  <script type="module">
+    import { z } from 'https://cdn.skypack.dev/zod';
+    window.Zod = z;
+  </script>
 </head>
 <body>
   <header>
-    <div class="banner-header">
-      <img src="https://yt3.googleusercontent.com/gGUnXkDMDw3nUtB0jsiLDdA6YWOdqAKq3jHLEk9o2OONrx1pQP_q6khCXw_ibELhTIIH9q2LxQ=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj" alt="Banner VerdiLume" />
-    </div>
-    <div class="header-top">
-      <h1>VerdiLume</h1>
-      <p>Loja de produtos aromáticos e velas artesanais</p>
-      <div class="carrinho-icon" onclick="toggleCarrinho()">
-        🛒 <span id="contador-carrinho">0</span>
-      </div>
-    </div>
+    <!-- seu cabeçalho verde… -->
   </header>
 
   <section class="container" id="lista-produtos"></section>
 
+  <!-- Carrinho -->
   <div class="carrinho" id="carrinho">
     <h4>🧺 Seu Carrinho</h4>
     <ul id="itens-carrinho"></ul>
@@ -34,15 +32,15 @@
     <button class="finalizar-btn" onclick="abrirFormulario()">Finalizar Compra</button>
   </div>
 
-  <!-- Modal de formulário de pagamento -->
+  <!-- Modal de pagamento -->
   <div id="modal-form" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close-btn" onclick="fecharFormulario()">&times;</span>
       <h2>Informações de Pagamento</h2>
       <form id="formulario-pagamento">
-        <input type="text" name="nome" id="input-nome" placeholder="Seu nome completo" required />
-        <input type="text" name="endereco" id="input-endereco" placeholder="Endereço de entrega" required />
-        <input type="tel" name="telefone" id="input-telefone" placeholder="Telefone com DDD" required />
+        <input type="text" name="nome" id="input-nome" placeholder="Seu nome completo" required/>
+        <input type="text" name="endereco" id="input-endereco" placeholder="Endereço de entrega" required/>
+        <input type="tel" name="telefone" id="input-telefone" placeholder="Telefone com DDD" required/>
         <button type="submit">Gerar PIX</button>
       </form>
       <div id="area-pix" style="display:none;">
@@ -54,11 +52,13 @@
     </div>
   </div>
 
-  <footer class="footer-verdi">
-    <p>© 2025 VerdiLume. Todos os direitos reservados.</p>
+  <footer>
+    <!-- rodapé… -->
   </footer>
 
-  <script type="module" src="scripts/main.js"></script>
+  <!-- Precisa carregar modais antes do main.js -->
   <script src="scripts/modais.js"></script>
+  <!-- Define main.js como módulo para permitir import/export -->
+  <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
