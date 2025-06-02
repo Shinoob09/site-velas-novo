@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>VerdiLume - Aromas & Velas</title>
-  <link href="styles/main.css" rel="stylesheet" />
+  <link href="styles/main.css" rel="stylesheet"/>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (sem type="module", pois usa compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <header>…</header>
+  <header>
+    <div class="banner-header">
+      <img src="https://yt3.googleusercontent.com/gGUnXkDMDw3nUtB0jsiLDdA6YWOdqAKq3jHLEk9o2OONrx1pQP_q6khCXw_ibELhTIIH9q2LxQ=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj" alt="Banner VerdiLume" />
+    </div>
+    <div class="header-top">
+      <h1>VerdiLume</h1>
+      <p>Loja de produtos aromáticos e velas artesanais</p>
+      <div class="carrinho-icon" onclick="toggleCarrinho()">
+        🛒 <span id="contador-carrinho">0</span>
+      </div>
+    </div>
+  </header>
 
   <section class="container" id="lista-produtos"></section>
 
@@ -22,7 +33,7 @@
     <button class="finalizar-btn" onclick="abrirFormulario()">Finalizar Compra</button>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal de pagamento -->
   <div id="modal-form" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close-btn" onclick="fecharFormulario()">&times;</span>
@@ -35,18 +46,18 @@
       </form>
       <div id="area-pix" style="display:none;">
         <h3>Escaneie ou copie o PIX</h3>
-        <img id="qrcode-img" src="" alt="QR Code PIX" style="max-width:200px;" />
+        <img id="qrcode-img" src="" alt="QR Code PIX" style="max-width:200px;"/>
         <textarea id="pix-copia" readonly style="width:100%; height:100px;"></textarea>
         <button onclick="confirmarPagamento()">Finalizar</button>
       </div>
     </div>
   </div>
 
-  <footer>…</footer>
+  <footer class="footer-verdi">
+    <p>© 2025 VerdiLume. Todos os direitos reservados.</p>
+  </footer>
 
-  <!-- main.js como módulo, que importa produtos.js e carrinho.js -->
-   <script src="scripts/firebase.js"></script>
-  <script src="scripts/carrinho.js"></script>
+  <!-- Carrega apenas main.js, que importa firebase.js, produtos.js e carrinho.js -->
   <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
