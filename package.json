@@ -1,0 +1,14 @@
+{
+  "name": "verdiLumeFinal_v2",
+  "version": "1.0.0",
+  "description": "Servidor local para testar /api/gerar-pix",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "node-fetch": "^2.6.7"
+  }
+}
