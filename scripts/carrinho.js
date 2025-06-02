@@ -1,6 +1,5 @@
 // scripts/carrinho.js
-// Usando o Zod exposto como window.Zod
-const { z } = window.Zod;
+import { z } from 'https://cdn.skypack.dev/zod';
 
 const schema = z.object({
   nome: z.string().min(3),
@@ -10,7 +9,6 @@ const schema = z.object({
 
 let carrinho = JSON.parse(localStorage.getItem("carrinho")) || {};
 
-/* Renderiza o carrinho no DOM */
 function renderizarCarrinho() {
   const lista = document.getElementById("itens-carrinho");
   const totalDisplay = document.getElementById("total-carrinho");
@@ -36,20 +34,17 @@ function renderizarCarrinho() {
   contador.textContent = count;
 }
 
-/* Salva no localStorage e redesenha o carrinho */
 function salvarCarrinho() {
   localStorage.setItem("carrinho", JSON.stringify(carrinho));
   renderizarCarrinho();
 }
 
-/* Expondo no window para o HTML chamar */
 window.adicionarAoCarrinho = (id, nome, preco) => {
   if (carrinho[id]) carrinho[id].quantidade++;
   else carrinho[id] = { id, nome, preco, quantidade: 1 };
   salvarCarrinho();
 };
 
-/* Expondo alteração de quantidade */
 window.alterarQuantidade = (id, delta) => {
   if (!carrinho[id]) return;
   carrinho[id].quantidade += delta;
@@ -57,17 +52,14 @@ window.alterarQuantidade = (id, delta) => {
   salvarCarrinho();
 };
 
-/* Abre o modal de formulário de pagamento */
 window.abrirFormulario = () => {
   document.getElementById("modal-form").style.display = "flex";
 };
 
-/* Fecha o modal */
 window.fecharFormulario = () => {
   document.getElementById("modal-form").style.display = "none";
 };
 
-/* Lida com o submit do formulário */
 document.getElementById("formulario-pagamento")?.addEventListener("submit", async (e) => {
   e.preventDefault();
   const nome = document.getElementById("input-nome").value.trim();
@@ -81,7 +73,6 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
 
   const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
   try {
-    // Gera PIX com PixGerar
     const response = await fetch("https://api-pixgerar.onrender.com/api/qrcode", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -104,40 +95,14 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
   }
 });
 
-/* Fecha o modal e envia o pedido ao confirmar */
 window.confirmarPagamento = async () => {
   const nome = document.getElementById("input-nome").value.trim();
   const endereco = document.getElementById("input-endereco").value.trim();
   const telefone = document.getElementById("input-telefone").value.trim();
   const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
-  const itens = Object.values(carrinho).map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`).join(", ");
+  const itens = Object.values(carrinho).map(i => \`\${i.quantidade}x \${i.nome} (R$\${i.preco.toFixed(2)})\`).join(", ");
   const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
 
   try {
-    // Salva no Firestore
     await db.collection("pedidos").add(pedidoObj);
-    // Envia Telegram
-    const mensagem = `
-🧾 *Novo Pedido VerdiLume*
-👤 *Nome:* ${nome}
-🏠 *Endereço:* ${endereco}
-📞 *Telefone:* ${telefone}
-📦 *Itens:* ${itens}
-💰 *Total:* R$${total}
-    `;
-    const url = `https://api.telegram.org/bot7635965015:AAGcOEt7lMgxmlG8C8FxPhCh2vDMnIk5Rpg/sendMessage?chat_id=5688730032&text=${encodeURIComponent(mensagem)}&parse_mode=Markdown`;
-    fetch(url).catch(console.error);
-
-    // Limpa carrinho e redireciona
-    localStorage.removeItem("carrinho");
-    window.location.href = "confirmacao.html";
-  } catch (err) {
-    console.error(err);
-    alert("Erro ao processar o pedido.");
-  }
-};
-
-/* Função principal para inicializar o carrinho na página */
-export function configurarCarrinho() {
-  renderizarCarrinho();
-}
+    const mensagem = \`
