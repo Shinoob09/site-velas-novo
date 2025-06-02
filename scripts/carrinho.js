@@ -15,7 +15,6 @@ function renderizarCarrinho() {
   const contador = document.getElementById("contador-carrinho");
   lista.innerHTML = "";
   let total = 0, count = 0;
-
   Object.values(carrinho).forEach(item => {
     const li = document.createElement("li");
     li.innerHTML = `
@@ -29,7 +28,6 @@ function renderizarCarrinho() {
     total += item.preco * item.quantidade;
     count += item.quantidade;
   });
-
   totalDisplay.textContent = total.toFixed(2);
   contador.textContent = count;
 }
@@ -71,7 +69,10 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
     return;
   }
 
-  const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
+  const total = Object.values(carrinho)
+    .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
+    .toFixed(2);
+
   try {
     const response = await fetch("https://api-pixgerar.onrender.com/api/qrcode", {
       method: "POST",
@@ -79,7 +80,7 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
       body: JSON.stringify({
         nome,
         valor: total,
-        chave: "19994717011",
+        chave: "pix@seudominio.com.br",
         cidade: "Campinas",
         infoAdicional: "VerdiLume"
       })
@@ -94,7 +95,8 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
     alert("Falha ao gerar PIX.");
   }
 });
-// scripts/carrinho.js (a partir da linha onde definimos `confirmarPagamento`)
+
+// === Aqui começa a parte que antes gerava SyntaxError ===
 window.confirmarPagamento = async () => {
   const nome = document.getElementById("input-nome").value.trim();
   const endereco = document.getElementById("input-endereco").value.trim();
@@ -102,25 +104,16 @@ window.confirmarPagamento = async () => {
   const total = Object.values(carrinho)
     .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
     .toFixed(2);
-
   const itens = Object.values(carrinho)
     .map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`)
     .join(", ");
-
-  const pedidoObj = {
-    nome,
-    endereco,
-    telefone,
-    itens,
-    total,
-    data: new Date().toISOString()
-  };
+  const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
 
   try {
     // 1) Salva no Firestore
     await db.collection("pedidos").add(pedidoObj);
 
-    // 2) Monta a mensagem do Telegram SEM BACKTICKS multilinha
+    // 2) Mensagem concatenada (sem backticks multilinha)
     const mensagem =
       "🧾 *Novo Pedido VerdiLume*\\n" +
       "👤 *Nome:* " + nome + "\\n" +
@@ -129,8 +122,8 @@ window.confirmarPagamento = async () => {
       "📦 *Itens:* " + itens + "\\n" +
       "💰 *Total:* R$" + total;
 
-    // 3) Monta a URL de envio para o seu Bot
-    const botToken = "7635965015:AAGcOEt7lMgxmlG8C8FxPh2vDMnIk5Rpg"; 
+    // 3) Monta URL do Telegram
+    const botToken = "7635965015:AAGcOEt7lMgxmlG8C8FxPh2vDMnIk5Rpg";
     const chatId = "5688730032";
     const url =
       "https://api.telegram.org/bot" +
@@ -140,10 +133,10 @@ window.confirmarPagamento = async () => {
       "&text=" + encodeURIComponent(mensagem) +
       "&parse_mode=Markdown";
 
-    // 4) Dispara o fetch para enviar ao Telegram
+    // 4) Envia mensagem
     fetch(url).catch(console.error);
 
-    // 5) Limpa o carrinho e redireciona à página de confirmação
+    // 5) Limpa e redireciona
     localStorage.removeItem("carrinho");
     window.location.href = "confirmacao.html";
   } catch (err) {
@@ -152,4 +145,6 @@ window.confirmarPagamento = async () => {
   }
 };
 
-
+export function configurarCarrinho() {
+  renderizarCarrinho();
+}
