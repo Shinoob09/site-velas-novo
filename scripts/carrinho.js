@@ -10,11 +10,21 @@ const schema = z.object({
 let carrinho = JSON.parse(localStorage.getItem("carrinho")) || {};
 
 function renderizarCarrinho() {
+  // Pega referências ao DOM (agora obrigatoriamente só após DOMContentLoaded)
   const lista = document.getElementById("itens-carrinho");
   const totalDisplay = document.getElementById("total-carrinho");
   const contador = document.getElementById("contador-carrinho");
+
+  // Se algum destes retornar null, significa que o HTML não definiu o id corretamente
+  if (!lista || !totalDisplay || !contador) {
+    console.error("Elementos do carrinho não encontrados no DOM!");
+    return;
+  }
+
   lista.innerHTML = "";
-  let total = 0, count = 0;
+  let total = 0;
+  let count = 0;
+
   Object.values(carrinho).forEach(item => {
     const li = document.createElement("li");
     li.innerHTML = `
@@ -28,6 +38,7 @@ function renderizarCarrinho() {
     total += item.preco * item.quantidade;
     count += item.quantidade;
   });
+
   totalDisplay.textContent = total.toFixed(2);
   contador.textContent = count;
 }
@@ -38,8 +49,11 @@ function salvarCarrinho() {
 }
 
 window.adicionarAoCarrinho = (id, nome, preco) => {
-  if (carrinho[id]) carrinho[id].quantidade++;
-  else carrinho[id] = { id, nome, preco, quantidade: 1 };
+  if (carrinho[id]) {
+    carrinho[id].quantidade++;
+  } else {
+    carrinho[id] = { id, nome, preco, quantidade: 1 };
+  }
   salvarCarrinho();
 };
 
@@ -63,16 +77,14 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
   const nome = document.getElementById("input-nome").value.trim();
   const endereco = document.getElementById("input-endereco").value.trim();
   const telefone = document.getElementById("input-telefone").value.trim();
+
   const parsed = schema.safeParse({ nome, endereco, telefone });
   if (!parsed.success) {
     alert("Preencha corretamente os campos!");
     return;
   }
 
-  const total = Object.values(carrinho)
-    .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
-    .toFixed(2);
-
+  const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
   try {
     const response = await fetch("https://api-pixgerar.onrender.com/api/qrcode", {
       method: "POST",
@@ -80,7 +92,7 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
       body: JSON.stringify({
         nome,
         valor: total,
-        chave: "pix@seudominio.com.br",
+        chave: "19994717011",
         cidade: "Campinas",
         infoAdicional: "VerdiLume"
       })
@@ -96,24 +108,20 @@ document.getElementById("formulario-pagamento")?.addEventListener("submit", asyn
   }
 });
 
-// === Aqui começa a parte que antes gerava SyntaxError ===
 window.confirmarPagamento = async () => {
   const nome = document.getElementById("input-nome").value.trim();
   const endereco = document.getElementById("input-endereco").value.trim();
   const telefone = document.getElementById("input-telefone").value.trim();
-  const total = Object.values(carrinho)
-    .reduce((acc, i) => acc + i.preco * i.quantidade, 0)
-    .toFixed(2);
+  const total = Object.values(carrinho).reduce((acc, i) => acc + i.preco * i.quantidade, 0).toFixed(2);
   const itens = Object.values(carrinho)
     .map(i => `${i.quantidade}x ${i.nome} (R$${i.preco.toFixed(2)})`)
     .join(", ");
   const pedidoObj = { nome, endereco, telefone, itens, total, data: new Date().toISOString() };
 
   try {
-    // 1) Salva no Firestore
     await db.collection("pedidos").add(pedidoObj);
 
-    // 2) Mensagem concatenada (sem backticks multilinha)
+    // Monta mensagem sem usar template literal multilinha (sem backticks)
     const mensagem =
       "🧾 *Novo Pedido VerdiLume*\\n" +
       "👤 *Nome:* " + nome + "\\n" +
@@ -122,7 +130,6 @@ window.confirmarPagamento = async () => {
       "📦 *Itens:* " + itens + "\\n" +
       "💰 *Total:* R$" + total;
 
-    // 3) Monta URL do Telegram
     const botToken = "7635965015:AAGcOEt7lMgxmlG8C8FxPh2vDMnIk5Rpg";
     const chatId = "5688730032";
     const url =
@@ -133,10 +140,8 @@ window.confirmarPagamento = async () => {
       "&text=" + encodeURIComponent(mensagem) +
       "&parse_mode=Markdown";
 
-    // 4) Envia mensagem
     fetch(url).catch(console.error);
 
-    // 5) Limpa e redireciona
     localStorage.removeItem("carrinho");
     window.location.href = "confirmacao.html";
   } catch (err) {
