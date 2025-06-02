@@ -4,23 +4,17 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>VerdiLume - Aromas & Velas</title>
-  <!-- Aponta para o CSS correto -->
   <link href="styles/main.css" rel="stylesheet" />
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-
 </head>
 <body>
-  <header>
-    <!-- seu cabeçalho verde… -->
-  </header>
+  <header>…</header>
 
   <section class="container" id="lista-produtos"></section>
 
-  <!-- Carrinho -->
   <div class="carrinho" id="carrinho">
     <h4>🧺 Seu Carrinho</h4>
     <ul id="itens-carrinho"></ul>
@@ -28,33 +22,29 @@
     <button class="finalizar-btn" onclick="abrirFormulario()">Finalizar Compra</button>
   </div>
 
-  <!-- Modal de pagamento -->
+  <!-- Modal -->
   <div id="modal-form" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close-btn" onclick="fecharFormulario()">&times;</span>
       <h2>Informações de Pagamento</h2>
       <form id="formulario-pagamento">
-        <input type="text" name="nome" id="input-nome" placeholder="Seu nome completo" required/>
-        <input type="text" name="endereco" id="input-endereco" placeholder="Endereço de entrega" required/>
-        <input type="tel" name="telefone" id="input-telefone" placeholder="Telefone com DDD" required/>
+        <input type="text" name="nome" id="input-nome" placeholder="Seu nome completo" required />
+        <input type="text" name="endereco" id="input-endereco" placeholder="Endereço de entrega" required />
+        <input type="tel" name="telefone" id="input-telefone" placeholder="Telefone com DDD" required />
         <button type="submit">Gerar PIX</button>
       </form>
       <div id="area-pix" style="display:none;">
         <h3>Escaneie ou copie o PIX</h3>
-        <img id="qrcode-img" src="" alt="QR Code PIX" style="max-width:200px;"/>
+        <img id="qrcode-img" src="" alt="QR Code PIX" style="max-width:200px;" />
         <textarea id="pix-copia" readonly style="width:100%; height:100px;"></textarea>
         <button onclick="confirmarPagamento()">Finalizar</button>
       </div>
     </div>
   </div>
 
-  <footer>
-    <!-- rodapé… -->
-  </footer>
+  <footer>…</footer>
 
-  <!-- Precisa carregar modais antes do main.js -->
-  <script src="scripts/modais.js"></script>
-  <!-- Define main.js como módulo para permitir import/export -->
+  <!-- main.js como módulo, que importa produtos.js e carrinho.js -->
   <script type="module" src="scripts/main.js"></script>
 </body>
 </html>
